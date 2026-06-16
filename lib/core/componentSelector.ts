@@ -1,0 +1,3 @@
+import { componentCatalog } from '@/lib/data/componentCatalog';
+import { ComponentOption, IdeaAnalysis } from './types';
+export function componentSelector(analysis: IdeaAnalysis): ComponentOption[] { const keys=[analysis.controller,...analysis.detectedInputs,...analysis.detectedOutputs]; const selected:ComponentOption[]=[]; keys.forEach(k=>{ const item=componentCatalog[k]?.[0]; if(item && !selected.find(x=>x.key===item.key)) selected.push(item); }); selected.push({key:'jumper-wires',name:'Jumper Wires',category:'wiring',beginnerReason:'للتوصيل الأولي على Breadboard.',estimatedPriceSar:5}); selected.push({key:'breadboard',name:'Solderless Breadboard',category:'prototyping',beginnerReason:'يسمح بالتجربة بدون لحام.',estimatedPriceSar:10}); return selected; }

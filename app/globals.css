@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+}
+
+body{
+    background:#07130f;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+*{
+    box-sizing:border-box;
+}
+
+.react-flow__node{
+    border-radius:16px;
+    background:#12382c;
+    color:white;
+    border:1px solid rgba(255,255,255,.15);
+}
+
+.react-flow__edge-path{
+    stroke:#d4af37;
+    stroke-width:2;
+}
