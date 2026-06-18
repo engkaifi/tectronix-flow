@@ -1,4 +1,4 @@
-export type Controller = 'Arduino Uno' | 'Arduino Nano' | 'ESP32';
+export type Controller = 'Arduino Uno' | 'Arduino Nano' | 'ESP32' | 'Raspberry Pi Pico';
 export type Connectivity = 'none' | 'WiFi' | 'Bluetooth' | 'MQTT';
 export type BlockKind = 'input' | 'logic' | 'output' | 'connectivity' | 'controller' | 'power';
 export type SupportedInput = 'temperature' | 'humidity' | 'soil moisture' | 'light' | 'motion' | 'distance' | 'button';
@@ -32,7 +32,6 @@ export interface ProjectConstraints {
 
 export interface IdeaAnalysis {
   originalIdea: string;
-
   // --- Core electronics intent (preserved for backward compatibility) ---
   detectedInputs: SupportedInput[];
   detectedOutputs: SupportedOutput[];
@@ -41,33 +40,57 @@ export interface IdeaAnalysis {
   controller: Controller;
   confidence: number;
   assumptions: string[];
-
   // --- New structured parser fields ---
   /** The domain/application area of the project. */
   domain: ProjectDomain;
-
   /** Power source hints extracted from the idea. */
   powerSource: PowerSourceHint;
-
   /** Constraints or preferences mentioned. */
   constraints: ProjectConstraints;
-
   /** Whether a visual display/feedback was requested. */
   hasDisplay: boolean;
-
   /** Whether the idea explicitly mentions a specific sensor not in the standard list. */
   customSensorHints: string[];
-
   /** Whether the idea explicitly mentions a specific actuator not in the standard list. */
   customActuatorHints: string[];
-
   /** Questions to ask the user when the idea is ambiguous. */
   clarificationQuestions: string[];
 }
 
 export interface FlowBlock { id: string; label: string; kind: BlockKind; description: string; meta?: Record<string, string | number | boolean>; }
 export interface FlowEdge { id: string; source: string; target: string; label?: string; }
-export interface ComponentOption { key: string; name: string; category: string; beginnerReason: string; pins?: string[]; voltage?: string; estimatedPriceSar?: number; }
+
+/** A single component option from the catalog with selection metadata. */
+export interface ComponentOption {
+  key: string;
+  name: string;
+  category: string;
+  beginnerReason: string;
+  pins?: string[];
+  voltage?: string;
+  estimatedPriceSar?: number;
+  /** Selection confidence for this specific component [0–1]. */
+  selectionConfidence?: number;
+  /** Human-readable reason this component was selected. */
+  selectionReason?: string;
+  /** Alternative candidates for this slot. */
+  alternatives?: ComponentOption[];
+}
+
+/** Overall selection result metadata returned alongside the component list. */
+export interface SelectionMetadata {
+  /** Total estimated cost of all selected components in SAR. */
+  totalEstimatedCost: number;
+  /** Overall selection confidence across all picks [0–1]. */
+  overallConfidence: number;
+  /** Per-category breakdown of how many alternatives were considered. */
+  alternativesConsidered: number;
+  /** Number of components that required a fallback (not in catalog). */
+  fallbackCount: number;
+  /** Whether the selected controller and all components are voltage-compatible. */
+  voltageCompatible: boolean;
+}
+
 export interface SchematicConnection { from: string; to: string; signal: string; notes: string; }
 export interface BomItem { item: string; qty: number; role: string; estimatedPriceSar: number; alternatives?: string[]; }
 export interface FirmwareDraft { language: 'Arduino C++'; target: Controller; code: string; notes: string[]; }
