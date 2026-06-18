@@ -16,132 +16,262 @@ import { FlowBlock, FlowEdge, BlockKind } from '@/lib/core/types';
 import { useMemo } from 'react';
 
 // =========================================================================
-// COLOR PALETTE PER BLOCK KIND
+// COLOR PALETTE (Professional grade)
 // =========================================================================
 
-const KIND_COLORS: Partial<Record<BlockKind, { bg: string; border: string; text: string; label: string }>> = {
+interface NodePalette {
+  bg: string;       // card background
+  border: string;   // card border + handles
+  glow: string;     // shadow glow
+  text: string;     // title text
+  sub: string;      // subtitle text
+  label: string;    // kind badge text
+  badgeBg: string;  // kind badge background
+}
+
+const KIND_STYLES: Record<string, NodePalette> = {
   controller: {
-    bg: 'rgba(251, 191, 36, 0.12)',
+    bg: 'linear-gradient(135deg, #1a1508 0%, #231b0e 100%)',
     border: '#f59e0b',
+    glow: 'rgba(245, 158, 11, 0.25)',
     text: '#fbbf24',
+    sub: '#a68a3a',
     label: 'Controller',
+    badgeBg: 'rgba(245, 158, 11, 0.15)',
   },
   input: {
-    bg: 'rgba(56, 189, 248, 0.10)',
-    border: '#38bdf8',
-    text: '#7dd3fc',
+    bg: 'linear-gradient(135deg, #0c1825 0%, #0f2030 100%)',
+    border: '#3b82f6',
+    glow: 'rgba(59, 130, 246, 0.25)',
+    text: '#60a5fa',
+    sub: '#3b7090',
     label: 'Input',
+    badgeBg: 'rgba(59, 130, 246, 0.15)',
   },
   logic: {
-    bg: 'rgba(52, 211, 153, 0.10)',
-    border: '#34d399',
-    text: '#6ee7b7',
+    bg: 'linear-gradient(135deg, #140e1f 0%, #1a1230 100%)',
+    border: '#a78bfa',
+    glow: 'rgba(167, 139, 250, 0.25)',
+    text: '#c4b5fd',
+    sub: '#7c6a9a',
     label: 'Logic',
+    badgeBg: 'rgba(167, 139, 250, 0.15)',
   },
   output: {
-    bg: 'rgba(248, 113, 113, 0.10)',
-    border: '#f87171',
-    text: '#fca5a5',
+    bg: 'linear-gradient(135deg, #0a1a12 0%, #0f2618 100%)',
+    border: '#22c55e',
+    glow: 'rgba(34, 197, 94, 0.25)',
+    text: '#4ade80',
+    sub: '#3a8a5a',
     label: 'Output',
-  },
-  power: {
-    bg: 'rgba(192, 132, 252, 0.10)',
-    border: '#c084fc',
-    text: '#d8b4fe',
-    label: 'Power',
+    badgeBg: 'rgba(34, 197, 94, 0.15)',
   },
   connectivity: {
-    bg: 'rgba(45, 212, 191, 0.10)',
-    border: '#2dd4bf',
-    text: '#5eead4',
+    bg: 'linear-gradient(135deg, #0a1a1a 0%, #0f2424 100%)',
+    border: '#06b6d4',
+    glow: 'rgba(6, 182, 212, 0.25)',
+    text: '#67e8f9',
+    sub: '#3a8a9a',
     label: 'Connectivity',
+    badgeBg: 'rgba(6, 182, 212, 0.15)',
   },
 };
 
-const DEFAULT_COLOR = {
-  bg: 'rgba(148, 163, 184, 0.08)',
+const DEFAULT_STYLE: NodePalette = {
+  bg: 'linear-gradient(135deg, #111 0%, #1a1a1a 100%)',
   border: '#64748b',
-  text: '#94a3b8',
+  glow: 'rgba(100, 116, 139, 0.2)',
+  text: '#cbd5e1',
+  sub: '#64748b',
   label: 'Block',
+  badgeBg: 'rgba(100, 116, 139, 0.15)',
 };
 
-function getColor(kind: BlockKind) {
-  return KIND_COLORS[kind] ?? DEFAULT_COLOR;
+function getStyle(kind: BlockKind): NodePalette {
+  return KIND_STYLES[kind] ?? DEFAULT_STYLE;
 }
 
 // =========================================================================
-// CUSTOM NODE COMPONENTS
+// SVG ICONS per block kind
 // =========================================================================
 
-/** Shared node layout: colored left border, label, kind badge, description on hover. */
-function BaseNode({ data }: NodeProps) {
-  const color = getColor(data.kind as BlockKind);
+function ControllerIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect x="4" y="8" width="20" height="12" rx="2" stroke="#f59e0b" strokeWidth="1.5" fill="rgba(245,158,11,0.08)" />
+      <circle cx="14" cy="14" r="3" stroke="#f59e0b" strokeWidth="1.2" fill="rgba(245,158,11,0.12)" />
+      <rect x="9" y="11" width="10" height="6" rx="1" stroke="#f59e0b" strokeWidth="0.8" fill="none" opacity="0.4" />
+    </svg>
+  );
+}
+
+function InputIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <path d="M6 14L12 8v12L6 14z" stroke="#3b82f6" strokeWidth="1.5" fill="rgba(59,130,246,0.12)" />
+      <path d="M12 14h10" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="22" cy="14" r="2" stroke="#3b82f6" strokeWidth="1" fill="rgba(59,130,246,0.15)" />
+    </svg>
+  );
+}
+
+function LogicIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <path d="M14 6l8 8-8 8-8-8 8-8z" stroke="#a78bfa" strokeWidth="1.5" fill="rgba(167,139,250,0.12)" />
+      <path d="M14 10l4 4-4 4" stroke="#a78bfa" strokeWidth="1" fill="none" opacity="0.5" />
+    </svg>
+  );
+}
+
+function OutputIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <path d="M22 14L16 8v12l6-6z" stroke="#22c55e" strokeWidth="1.5" fill="rgba(34,197,94,0.12)" />
+      <path d="M16 14H6" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="6" cy="14" r="2" stroke="#22c55e" strokeWidth="1" fill="rgba(34,197,94,0.15)" />
+    </svg>
+  );
+}
+
+function ConnectivityIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <path d="M8 20a8 8 0 0112 0" stroke="#06b6d4" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      <path d="M11 17a5 5 0 016 0" stroke="#06b6d4" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+      <circle cx="14" cy="14" r="2" stroke="#06b6d4" strokeWidth="1" fill="rgba(6,182,212,0.15)" />
+    </svg>
+  );
+}
+
+function DefaultIcon() {
+  return (
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+      <rect x="6" y="6" width="16" height="16" rx="3" stroke="#64748b" strokeWidth="1.5" fill="rgba(100,116,139,0.08)" />
+    </svg>
+  );
+}
+
+function getIcon(kind: BlockKind): React.ReactNode {
+  switch (kind) {
+    case 'controller': return <ControllerIcon />;
+    case 'input': return <InputIcon />;
+    case 'logic': return <LogicIcon />;
+    case 'output': return <OutputIcon />;
+    case 'connectivity': return <ConnectivityIcon />;
+    default: return <DefaultIcon />;
+  }
+}
+
+// =========================================================================
+// CUSTOM PROFESSIONAL NODE
+// =========================================================================
+
+function ElectronicsNode({ data }: NodeProps) {
+  const kind = data.kind as BlockKind;
+  const style = getStyle(kind);
 
   return (
     <div
-      className="group relative rounded-xl border-l-4 px-4 py-3 shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:shadow-xl"
+      className="group relative"
       style={{
-        backgroundColor: color.bg,
-        borderLeftColor: color.border,
-        borderWidth: '1px 1px 1px 4px',
-        borderStyle: 'solid',
-        borderColor: `${color.border}33 ${color.border}22 ${color.border}22 ${color.border}`,
-        minWidth: 160,
-        maxWidth: 240,
+        filter: `drop-shadow(0 4px 12px ${style.glow})`,
       }}
-      title={data.description as string}
     >
-      {/* Source handle (right side — output) */}
+      {/* Source handle (right) */}
       <Handle
         type="source"
         position={Position.Right}
         style={{
-          width: 10,
-          height: 10,
-          backgroundColor: color.border,
-          border: '2px solid #03110d',
-          right: -5,
+          width: 12,
+          height: 12,
+          backgroundColor: style.border,
+          border: `3px solid #03110d`,
+          right: -6,
+          zIndex: 10,
         }}
       />
 
-      {/* Target handle (left side — input) */}
+      {/* Target handle (left) */}
       <Handle
         type="target"
         position={Position.Left}
         style={{
-          width: 10,
-          height: 10,
-          backgroundColor: color.border,
-          border: '2px solid #03110d',
-          left: -5,
+          width: 12,
+          height: 12,
+          backgroundColor: style.border,
+          border: `3px solid #03110d`,
+          left: -6,
+          zIndex: 10,
         }}
       />
 
-      {/* Block label */}
-      <p
-        className="text-sm font-bold leading-tight"
-        style={{ color: color.text }}
-      >
-        {data.label as string}
-      </p>
-
-      {/* Kind badge */}
-      <span
-        className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
+      {/* Card */}
+      <div
+        className="flex items-start gap-3 rounded-2xl border px-4 py-3.5 shadow-xl transition-all duration-300 hover:scale-[1.04] hover:shadow-2xl"
         style={{
-          backgroundColor: `${color.border}22`,
-          color: color.text,
+          background: style.bg,
+          borderColor: `${style.border}44`,
+          borderWidth: 1,
+          minWidth: 180,
+          maxWidth: 260,
         }}
       >
-        {color.label}
-      </span>
+        {/* Icon column */}
+        <div
+          className="flex-shrink-0 rounded-xl p-2"
+          style={{
+            backgroundColor: `${style.border}15`,
+            border: `1px solid ${style.border}30`,
+          }}
+        >
+          {getIcon(kind)}
+        </div>
 
-      {/* Description tooltip on hover */}
+        {/* Text column */}
+        <div className="flex flex-col gap-0.5 min-w-0">
+          {/* Title */}
+          <p
+            className="text-sm font-bold leading-tight truncate"
+            style={{ color: style.text }}
+          >
+            {data.label as string}
+          </p>
+
+          {/* Subtitle */}
+          <p
+            className="text-[11px] font-medium tracking-wide truncate"
+            style={{ color: style.sub }}
+          >
+            {style.label}
+          </p>
+
+          {/* Kind badge */}
+          <span
+            className="mt-1 self-start inline-block rounded-md px-2 py-0.5 text-[9px] font-semibold uppercase tracking-widest"
+            style={{
+              backgroundColor: style.badgeBg,
+              color: style.border,
+            }}
+          >
+            {style.label}
+          </span>
+        </div>
+      </div>
+
+      {/* Description tooltip */}
       {(data.description as string) && (
         <div
-          className="pointer-events-none absolute -top-2 left-1/2 z-50 max-w-56 -translate-x-1/2 -translate-y-full rounded-lg bg-gray-900 px-3 py-2 text-xs text-gray-200 opacity-0 shadow-lg transition-opacity duration-200 group-hover:opacity-100"
-          style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+          className="pointer-events-none absolute -top-2 left-1/2 z-50 max-w-64 -translate-x-1/2 -translate-y-full rounded-xl bg-gray-900 px-3.5 py-2.5 text-xs leading-relaxed text-gray-200 opacity-0 shadow-2xl transition-opacity duration-200 group-hover:opacity-100"
+          style={{
+            border: `1px solid ${style.border}40`,
+            backdropFilter: 'blur(8px)',
+          }}
         >
+          <div
+            className="absolute left-1/2 -bottom-1.5 h-3 w-3 -translate-x-1/2 rotate-45 bg-gray-900"
+            style={{ borderRight: `1px solid ${style.border}20`, borderBottom: `1px solid ${style.border}20` }}
+          />
           {data.description as string}
         </div>
       )}
@@ -154,105 +284,65 @@ function BaseNode({ data }: NodeProps) {
 // =========================================================================
 
 const nodeTypes = {
-  default: BaseNode,
-  input: BaseNode,
-  output: BaseNode,
-  logic: BaseNode,
-  controller: BaseNode,
-  power: BaseNode,
-  connectivity: BaseNode,
-  storage: BaseNode,
-  cloud: BaseNode,
+  default: ElectronicsNode,
+  input: ElectronicsNode,
+  output: ElectronicsNode,
+  logic: ElectronicsNode,
+  controller: ElectronicsNode,
+  power: ElectronicsNode,
+  connectivity: ElectronicsNode,
+  storage: ElectronicsNode,
+  cloud: ElectronicsNode,
 };
 
 // =========================================================================
-// AUTO-LAYOUT ALGORITHM
+// AUTO-LAYOUT: Inputs → Logic → Outputs
 // =========================================================================
 
-/**
- * Improved flow-oriented layout:
- *
- *   Power (top center)
- *      │
- *   Controller (center)
- *     ╱ ╲
- *   Inputs (left)   Logic (center-right)
- *                      │
- *                  Outputs (right)
- *                      │
- *               Connectivity (bottom)
- *
- * Columns: power=0, controller=1, input=0, logic=2, output=3, connectivity=4
- * Rows are stacked vertically within each column.
- */
+const COLUMN_MAP: Partial<Record<BlockKind, number>> = {
+  power: 0,
+  controller: 1,
+  input: 0,
+  logic: 2,
+  output: 3,
+  connectivity: 4,
+};
+
 function computeLayout(blocks: FlowBlock[]): Node[] {
-  // Define column order for a natural left-to-right flow
-  const columnOrder: Partial<Record<BlockKind, number>> = {
-    power: 0,
-    controller: 1,
-    input: 0,
-    logic: 2,
-    output: 3,
-    connectivity: 4,
-  };
+  const counters: Record<number, number> = {};
 
-  // Track how many nodes have been placed in each column
-  const columnCounters: Record<number, number> = {};
-
-  // Separate power and controller to place them at top center
-  const specialBlocks: FlowBlock[] = [];
-  const normalBlocks: FlowBlock[] = [];
-
-  for (const b of blocks) {
-    if (b.kind === 'power' || b.kind === 'controller') {
-      specialBlocks.push(b);
-    } else {
-      normalBlocks.push(b);
-    }
-  }
+  const powerCtrl = blocks.filter((b) => b.kind === 'power' || b.kind === 'controller');
+  const rest = blocks.filter((b) => b.kind !== 'power' && b.kind !== 'controller');
 
   const result: Node[] = [];
 
-  // Place power and controller at the top with specific positions
-  for (const b of specialBlocks) {
-    const col = b.kind === 'power' ? 1 : 1; // both in center column
-    const row = b.kind === 'power' ? 0 : 1; // power above controller
-    const x = col * 240 + 40;
-    const y = row * 140 + 20;
-
+  // Power + Controller at top center
+  for (const b of powerCtrl) {
+    const col = 1;
+    const row = b.kind === 'power' ? 0 : 1;
+    const x = col * 270 + 60;
+    const y = row * 150 + 20;
     result.push({
       id: b.id,
       position: { x, y },
-      data: {
-        label: b.label,
-        kind: b.kind,
-        description: b.description,
-      },
+      data: { label: b.label, kind: b.kind, description: b.description },
       type: 'default',
     });
-
-    columnCounters[col] = Math.max(columnCounters[col] ?? 0, row + 1);
+    counters[col] = Math.max(counters[col] ?? 0, row + 1);
   }
 
-  // Place remaining blocks in their columns
-  for (const b of normalBlocks) {
-    const col = columnOrder[b.kind] ?? 2;
-    const row = columnCounters[col] ?? 0;
-    columnCounters[col] = row + 1;
-
-    // Offset inputs to the left, outputs to the right
-    const xOffset = b.kind === 'input' ? -60 : b.kind === 'output' ? 60 : 0;
-    const x = col * 240 + 40 + xOffset;
-    const y = row * 140 + 60;
-
+  // Rest in their columns
+  for (const b of rest) {
+    const col = COLUMN_MAP[b.kind] ?? 2;
+    const row = counters[col] ?? 0;
+    counters[col] = row + 1;
+    const xOffset = b.kind === 'input' ? -40 : b.kind === 'output' ? 40 : 0;
+    const x = col * 270 + 60 + xOffset;
+    const y = row * 150 + 80;
     result.push({
       id: b.id,
       position: { x, y },
-      data: {
-        label: b.label,
-        kind: b.kind,
-        description: b.description,
-      },
+      data: { label: b.label, kind: b.kind, description: b.description },
       type: 'default',
     });
   }
@@ -261,52 +351,42 @@ function computeLayout(blocks: FlowBlock[]): Node[] {
 }
 
 // =========================================================================
-// EDGE STYLING
+// EDGE STYLING: SmoothStep, animated
 // =========================================================================
 
-/**
- * Converts FlowEdges to React Flow Edge objects with styling.
- */
 function buildEdges(edges: FlowEdge[]): Edge[] {
   return edges.map((e) => ({
     id: e.id,
     source: e.source,
     target: e.target,
     label: e.label ?? '',
+    type: 'smoothstep',
     animated: true,
     style: {
       stroke: '#34d399',
-      strokeWidth: 2,
+      strokeWidth: 2.5,
     },
     labelStyle: {
       fill: '#6ee7b7',
       fontSize: 11,
-      fontWeight: 600,
-      fontFamily: 'monospace',
+      fontWeight: 700,
+      fontFamily: 'ui-monospace, monospace',
     },
     labelBgStyle: {
       fill: '#0a1f18',
-      fillOpacity: 0.85,
-      rx: 4,
-      ry: 4,
+      fillOpacity: 0.9,
+      rx: 6,
+      ry: 6,
     },
-    labelBgPadding: [8, 4] as [number, number],
-    labelBgBorderRadius: 4,
+    labelBgPadding: [10, 5] as [number, number],
+    labelBgBorderRadius: 6,
   }));
 }
 
 // =========================================================================
-// MAIN EXPORT
+// MAIN EXPORT — API unchanged
 // =========================================================================
 
-/**
- * Interactive electronics block diagram using React Flow.
- *
- * @param blocks - Array of FlowBlock from the core engine.
- * @param edges  - Array of FlowEdge from the core engine.
- *
- * Fully backward-compatible. Accepts the same data shape as before.
- */
 export default function FlowCanvas({
   blocks,
   edges,
@@ -318,40 +398,51 @@ export default function FlowCanvas({
   const reactEdges = useMemo(() => buildEdges(edges), [edges]);
 
   return (
-    <div className="h-[520px] w-full overflow-hidden rounded-2xl border border-emerald-900 bg-[#07130f]">
+    <div className="h-[560px] w-full overflow-hidden rounded-2xl border border-emerald-800/50 bg-[#050f0b] shadow-2xl">
       <ReactFlow
         nodes={nodes}
         edges={reactEdges}
         nodeTypes={nodeTypes}
         fitView
-        fitViewOptions={{ padding: 0.3 }}
-        minZoom={0.3}
-        maxZoom={2}
+        fitViewOptions={{ padding: 0.35 }}
+        minZoom={0.25}
+        maxZoom={2.5}
+        panOnDrag
+        zoomOnScroll
+        zoomOnDoubleClick
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{
+          type: 'smoothstep',
           animated: true,
-          style: { stroke: '#34d399', strokeWidth: 2 },
+          style: { stroke: '#34d399', strokeWidth: 2.5 },
         }}
       >
-        <Background color="#1a3a2e" gap={24} size={1} />
+        {/* Subtle dark grid */}
+        <Background color="#1a3a2e" gap={28} size={1} />
+
+        {/* Professional minimap */}
         <MiniMap
           style={{
             backgroundColor: '#07130f',
-            border: '1px solid rgba(52, 211, 153, 0.2)',
-            borderRadius: 8,
+            border: '1px solid rgba(52, 211, 153, 0.15)',
+            borderRadius: 12,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
           }}
           nodeColor={(node) => {
             const kind = (node.data as any)?.kind as BlockKind | undefined;
-            return kind ? getColor(kind).border : '#64748b';
+            return kind ? getStyle(kind).border : '#64748b';
           }}
-          maskColor="rgba(3, 17, 13, 0.7)"
+          maskColor="rgba(3, 17, 13, 0.75)"
         />
+
+        {/* Styled controls */}
         <Controls
           style={{
             backgroundColor: '#0a1f18',
-            border: '1px solid rgba(52, 211, 153, 0.2)',
-            borderRadius: 8,
-            fill: '#34d399',
+            border: '1px solid rgba(52, 211, 153, 0.15)',
+            borderRadius: 12,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+            color: '#34d399',
           }}
         />
       </ReactFlow>
