@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from "react";
+import FlowCanvas from "@/components/FlowCanvas";
 import {
   Sparkles,
-  Cpu,
   Boxes,
   FileCode2,
   ShieldCheck,
@@ -136,14 +136,12 @@ export default function Home() {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-3">
-                <Card
-                  title="Functional Blocks"
-                  icon={<Cpu />}
-                  items={project.blocks?.map(
-                    (b: any) => b.label || b.type || b.id
-                  )}
-                />
+              <FlowCanvas
+                blocks={project.blocks ?? []}
+                edges={project.edges ?? []}
+              />
+
+              <div className="grid gap-6 lg:grid-cols-2">
                 <Card
                   title="Components"
                   icon={<Boxes />}
